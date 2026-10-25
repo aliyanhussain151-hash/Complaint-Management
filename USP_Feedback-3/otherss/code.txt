@@ -1,0 +1,28 @@
+1. 
+## 📦 Installation
+
+### Prerequisites
+- Apache Server (XAMPP/WAMP)
+- PHP 7.4+
+- MySQL 5.7+
+- Browser (Chrome, Firefox, Edge, etc.)
+
+### Steps
+
+1. **Download the project**
+```bash
+git clone https://github.com/Waseemliaqat/USP-Complaint-Management-System.git
+
+2.
+Copy to htdocs
+bash
+cp -r USP-Complaint-Management-System /xampp/htdocs/
+Create Database
+Open phpMyAdmin (http://localhost/phpmyadmin)
+Create new database named USP
+Import database/USP.sql
+Configure Database Connection
+Edit config/db_connect.php
+Update database credentials if needed
+Run Application
+Open browser and go to http://localhost/USP-Complaint-Management-System/

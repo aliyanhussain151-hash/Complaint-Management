@@ -1,0 +1,174 @@
+/* ==========================================================================
+   responsive.css – keeps every page intact when the browser is zoomed in/out
+   or the window is narrow.
+
+   Browser zoom shrinks the CSS viewport (200% zoom on a 1440px screen = 720px,
+   400% = 360px), so "zoom-proof" and "responsive" are the same problem.
+   Loaded AFTER each page's own <style> block so these rules win.
+   Pair with js/responsive.js (sidebar toggle + scrollable tables).
+   ========================================================================== */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+img, svg, video, canvas, iframe { max-width: 100%; }
+img, video, canvas { height: auto; }
+
+/* Let flex/grid children shrink instead of forcing the page wider */
+.main-content, .main, .page-header, .table-section, .card, .row > *,
+.modal-content, .topbar, .navbar-custom { min-width: 0; }
+
+/* Long unbroken text (emails, ids, pasted messages) wraps instead of overflowing */
+/* (break-word, not 'anywhere': 'anywhere' lets table columns collapse to one character) */
+.main-content, .main, .modal-body { overflow-wrap: break-word; }
+.table th, .table td { overflow-wrap: normal; }
+
+/* Tables scroll inside their own box instead of stretching the page */
+.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+
+/* Toolbars / button rows / pagination wrap instead of overflowing */
+.btn-toolbar, .pagination, .page-header .d-flex, .table-header, .pagination-section { flex-wrap: wrap; gap: .5rem; }
+.pagination { row-gap: .25rem; }
+
+/* Sidebar toggle + backdrop (hidden on wide screens) */
+.nav-toggle { display: none; }
+.sidebar-backdrop { display: none; }
+
+/* ---- Wide screens: keep the fixed sidebar but let it scroll if it is taller than the window ---- */
+.sidebar { overflow-y: auto; }
+
+/* ==========================================================================
+   Collapsed layout – below Bootstrap's "lg" breakpoint (≈ 150% zoom and up
+   on a 1440px screen, and every phone / tablet)
+   ========================================================================== */
+@media (max-width: 991.98px) {
+
+    /* Sidebar becomes an off-canvas drawer */
+    .sidebar {
+        position: fixed !important;
+        top: 0; left: 0; bottom: 0;
+        width: min(280px, 85vw) !important;
+        height: auto !important;
+        min-height: 0 !important;
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition: transform .25s ease, visibility 0s linear .25s;
+        z-index: 1101 !important;
+        overflow-y: auto;
+    }
+    body.sidebar-open .sidebar {
+        transform: none;
+        visibility: visible;
+        transition: transform .25s ease, visibility 0s;
+    }
+    body.sidebar-open { overflow: hidden; }
+
+    .sidebar-backdrop {
+        display: block;
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, .45);
+        z-index: 1100;
+        opacity: 0; pointer-events: none;
+        transition: opacity .25s ease;
+    }
+    body.sidebar-open .sidebar-backdrop { opacity: 1; pointer-events: auto; }
+
+    /* Content uses the full width once the sidebar is a drawer */
+    .main-content, .main, .topbar, .navbar-custom { margin-left: 0 !important; }
+    .navbar-custom { left: 0 !important; right: 0 !important; }
+    .main-content, .main { padding-left: 1rem; padding-right: 1rem; }
+
+    /* Make room for the hamburger button */
+    .navbar-custom, .topbar { padding-left: 4.25rem !important; padding-right: 1rem !important; min-height: 64px; }
+    body.no-topbar { padding-top: 4.5rem; }
+
+    /* Hamburger button (bars drawn in CSS – no icon font needed) */
+    .nav-toggle {
+        display: inline-flex; align-items: center; justify-content: center;
+        position: fixed; top: 10px; left: 12px;
+        width: 44px; height: 44px; padding: 0;
+        border: 0; border-radius: 10px;
+        background: #667eea; color: #fff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+        z-index: 1102; cursor: pointer;
+    }
+    /* Don't float over Bootstrap modals */
+    body.modal-open .nav-toggle { display: none; }
+    .nav-toggle:focus-visible { outline: 3px solid #43e97b; outline-offset: 2px; }
+    .nav-toggle-bars,
+    .nav-toggle-bars::before,
+    .nav-toggle-bars::after {
+        display: block; width: 22px; height: 2px; background: currentColor; border-radius: 2px;
+        content: ""; position: relative; transition: transform .2s ease, background .2s ease;
+    }
+    .nav-toggle-bars::before { position: absolute; top: -7px; left: 0; }
+    .nav-toggle-bars::after  { position: absolute; top:  7px; left: 0; }
+    body.sidebar-open .nav-toggle-bars { background: transparent; }
+    body.sidebar-open .nav-toggle-bars::before { transform: translateY(7px) rotate(45deg); }
+    body.sidebar-open .nav-toggle-bars::after  { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Page-level spacing */
+    .page-header { padding: 1.25rem !important; }
+    .modal-dialog { margin: .5rem; }
+}
+
+/* ---- Very narrow viewports (≈ 300 %+ zoom, small phones) ---- */
+@media (max-width: 575.98px) {
+    .main-content, .main { padding-left: .75rem; padding-right: .75rem; }
+    .page-header { padding: 1rem !important; }
+    .page-header h2, .main-content h2, .main h2 { font-size: 1.35rem; }
+    .btn-group { flex-wrap: wrap; }
+    .modal-dialog { margin: .25rem; max-width: none; }
+    .form-control, .form-select { min-width: 0; max-width: 100%; }
+}
+
+/* ---- Entrance animations that start off-screen would flash a horizontal scrollbar on narrow viewports ---- */
+@media (max-width: 991.98px) {
+    .login-panel, .login-card, .info-panel { animation: none !important; }
+    .login-panel { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
+
+
+/* ==========================================================================
+   Desktop polish
+   ========================================================================== */
+@media (min-width: 992px) {
+    /* The original admin top bar was pushed right TWICE (margin-left + left), leaving a blank gap above the content */
+    .navbar-custom { margin-left: 0 !important; }
+}
+
+/* Very wide windows (browser zoomed out, big monitors): keep content a readable width and centred
+   instead of stretching cards and tables across the whole screen.
+   Only for the fixed-sidebar page layout (content is a direct child of <body>); pages that use a
+   Bootstrap grid (manage_staff.php) already manage their own width. 1700px is wider than a
+   1920px screen gives the content, so ordinary monitors are not affected. */
+@media (min-width: 992px) {
+    body > .main-content {
+        max-width: 1700px;
+        margin-left: max(250px, calc((100vw / var(--fit, 1) + 250px - 1700px) / 2)) !important;
+        margin-right: auto;
+    }
+    body > .main {
+        max-width: 1700px;
+        margin-left: max(260px, calc((100vw / var(--fit, 1) + 260px - 1700px) / 2)) !important;
+        margin-right: auto;
+    }
+}
+
+/* ==========================================================================
+   Screen-fit compensation (see js/screen-fit.js)
+   `zoom` on <html> does not scale vh/vw units, so full-height pieces are
+   divided by the zoom factor to still reach the bottom of the screen.
+   ========================================================================== */
+html[data-fit] body { min-height: calc(100vh / var(--fit)); }
+html[data-fit] .sidebar { height: calc(100vh / var(--fit)); min-height: calc(100vh / var(--fit)); }
+/* Bootstrap's modal backdrop and viewport utility classes are also sized in vh/vw */
+html[data-fit] .modal-backdrop { width: calc(100vw / var(--fit)); height: calc(100vh / var(--fit)); }
+html[data-fit] .vh-100, html[data-fit] .min-vh-100 { height: calc(100vh / var(--fit)); min-height: calc(100vh / var(--fit)); }
+html[data-fit] .vw-100 { width: calc(100vw / var(--fit)); }
